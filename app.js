@@ -43,17 +43,21 @@ app.post("/create", async (req, res) => {
     res.status(500).send({ error: "Error creating user" });
   }
 });
-
 // Handle user deletion
-app.get("/delete", async (req, res) => {
+app.get("/delete/:id", async (req, res) => {
   try {
-    // Modify the query to find user by a valid field (e.g., email or _id)
-    let user = await usermodel.findOneAndDelete({ username: "anita123" });
+    // Find and delete the user with the specified ID
+    const deleteuser = await usermodel.findOneAndDelete({ _id: req.params.id });
 
-    if (!user) {
-      return res.status(404).send({ message: "User not found" });
+    if (!deleteuser) {
+      return res.status(404).send({ error: "User not found" });
     }
-    res.send({ message: "User deleted successfully", user });
+
+    // Log the deleted user
+    console.log(deleteuser);
+    
+    // Redirect to the read page after deletion
+    res.redirect("/read");
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: "Error deleting user" });
