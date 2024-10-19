@@ -1,63 +1,64 @@
 const express = require("express");
 const app = express();
-const usermodel = require("./usermodel");
+const path = require("path");
+const usermodel = require("./models/user");
 
+app.set("view engine", "ejs");
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
+
+// Render the index page
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.render("index");
 });
 
-// Route to create a new user
-app.get("/create", async (req, res) => {
-  try {
-    let createuser = await usermodel.create({
-      name: "anita",
-      email: "amrit@gmail.com",
-      age: 25,
-      username: "anita123"
-    });
-
-    console.log("User created", createuser);
-    
-    // Respond with JSON format (pretty printed)
-    res.status(201).json({
-      message: "User created successfully",
-      user: createuser
-    });
-  } catch (err) {
-    console.error("Error creating user:", err);
-    res.status(500).send("Error creating user");
-  }
-});
-
-// Route to update an existing user
-app.get("/update", async (req, res) => {
-  try {
-    let updateuser = await usermodel.findOneAndUpdate({ name: "John" }, { name: "Amrit" });
-    console.log("User updated", updateuser);
-    
-     res.status(200).json({
-      message: "User updated successfully",
-      result: updateuser
-    });
-  } catch (err) {
-    console.error("Error updating user:", err);
-    res.status(500).send("Error updating user");
-  }
-});
+// Render the read page
 app.get("/read", async (req, res) => {
   try {
     let users = await usermodel.find();
-    res.status(200).json(users);
-  } catch (err) {
-    console.error("Error reading users:", err);
-    res.status(500).send("Error reading users");
+    res.render("read", { users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Error retrieving users" });
   }
 });
-app.get("/delete",async(req,res)=>{
-    let user= await usermodel.findOneAndDelete({username:"anita123"});
-    res.send(user);
-res.send("user deleted");
-})
+
+// Handle user creation
+app.post("/create", async (req, res) => {
+  try {
+    // Create a new user
+    let createuser = await usermodel.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      image: req.body.image, // Assuming 'image' is the correct field
+    });
+
+    // Redirect to the read page after creation
+    res.redirect("/read");
+  } catch (error) {
+    console.error(error);
+    // Handle any errors during user creation
+    res.status(500).send({ error: "Error creating user" });
+  }
+});
+
+// Handle user deletion
+app.get("/delete", async (req, res) => {
+  try {
+    // Modify the query to find user by a valid field (e.g., email or _id)
+    let user = await usermodel.findOneAndDelete({ username: "anita123" });
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    res.send({ message: "User deleted successfully", user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Error deleting user" });
+  }
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
