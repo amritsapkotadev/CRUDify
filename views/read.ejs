@@ -19,12 +19,12 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       <% users.forEach(function(user) { %>
         <div class="user flex flex-col items-center p-4 rounded-lg shadow-lg bg-gray-50 transition-transform transform hover:scale-105">
-          <!-- Image element with a direct link to the image -->
-          <img src="https://www.austinclinic.com.au/wp-content/uploads/2023/02/What-Do-Men-Want-In-2023.webp" alt="<%= user.name %>'s profile image" class="h-24 w-24 rounded-full mb-4 object-cover border-2 border-gray-300">
+          <!-- Use the user-provided image URL -->
+          <img src="<%= user.image %>" alt="<%= user.name %>'s profile image" class="h-24 w-24 rounded-full mb-4 object-cover border-2 border-gray-300">
           <h3 class="text-xl mt-3 tracking-tight text-center font-semibold"><%= user.name %></h3>
           <h5 class="text-zinc-500 text-center"><%= user.email %></h5>
           <div class="flex gap-3 justify-center mt-4">
-            <a href="#" class="text-blue-500 hover:text-blue-700">Edit User</a>
+            <a href="/edit/<%=user._id%>" class="text-blue-500 hover:text-blue-700">Edit User</a>
             <a href="/delete/<%=user._id%>" class="text-red-500 hover:text-red-700">Delete User</a>
           </div>
         </div>
