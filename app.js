@@ -63,6 +63,27 @@ app.get("/delete/:id", async (req, res) => {
     res.status(500).send({ error: "Error deleting user" });
   }
 });
+app.get('/edit/:id', async (req, res) => {
+  try {
+    // Use 'usermodel' to find the user by ID
+    const user = await usermodel.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Render the 'edit' page and pass the 'user' object to it
+    res.render('edit', { user });
+  } catch (err) {
+    console.error(err); // Log the error for debugging
+    res.status(500).send('Error fetching user data');
+  }
+});
+app.post('/update/:id', async (req, res) => {
+  let {image, name, email, password} = req.body;
+  let user=await usermodel.findOneAndUpdate({_id:req.params.id},{image, name, email, password}); 
+res.redirect('/read');
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
